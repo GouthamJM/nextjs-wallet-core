@@ -1,6 +1,35 @@
-import '@/styles/globals.css'
-import type { AppProps } from 'next/app'
+import { AppProps } from "next/app";
+import trustWalletService from "../utils/walletCore";
+import dynamic from "next/dynamic";
+import { FC } from "react";
 
-export default function App({ Component, pageProps }: AppProps) {
-  return <Component {...pageProps} />
+
+ function PageLayoutHoc<T>(HocComponent: FC<T>) {
+  function PageLayoutHoc(props: any) {
+      return (
+        <div className="pageWrapper">
+        <main>
+            <HocComponent {...props} />
+        </main>
+         </div>
+      );
+  }
+  return PageLayoutHoc;
 }
+
+
+const Layout: FC<AppProps> = ({ Component, pageProps }) =>{
+    return <Component {...pageProps} />;
+}
+
+ const PageLayoutWithTrustWalletService = dynamic(
+    async () => {
+        await trustWalletService.init();
+        return PageLayoutHoc(Layout);
+    },
+    { ssr: false },
+);
+
+
+
+export default PageLayoutWithTrustWalletService;
